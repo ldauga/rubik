@@ -3,6 +3,7 @@ from typing import List, Literal, Union
 from Class.face import Face
 from parsing.parsing import ALL_MOVES
 
+HIDDEN = True
 
 RED = 0
 BLUE = 1
@@ -44,17 +45,38 @@ class Rubik:
     center_face: Face
     faces: dict
 
-    def __init__(self):
-        self.faces = {
-            "front": Face(WHITE),
-            "back": Face(YELLOW),
-            "left": Face(BLUE),
-            "right": Face(GREEN),
-            "up": Face(RED),
-            "down": Face(ORANGE),
-        }
+    def __init__(self, copy = None):
+        if copy:
+            self.faces = {
+                "front": Face(WHITE, grid=copy.faces["front"].grid),
+                "back": Face(YELLOW, grid=copy.faces["back"].grid),
+                "left": Face(BLUE, grid=copy.faces["left"].grid),
+                "right": Face(GREEN, grid=copy.faces["right"].grid),
+                "up": Face(RED, grid=copy.faces["up"].grid),
+                "down": Face(ORANGE, grid=copy.faces["down"].grid),
+            }
+        else:
+            self.faces = {
+                "front": Face(WHITE),
+                "back": Face(YELLOW),
+                "left": Face(BLUE),
+                "right": Face(GREEN),
+                "up": Face(RED),
+                "down": Face(ORANGE),
+            }
 
         self.center_face = self.faces["front"]
+
+    def __eq__(self, other):
+        for face in self.faces:
+            if self.faces[face] != other.faces[face]:
+                return False
+        return True
+        # Implémentez la méthode pour comparer deux objets RubiksCube
+        pass
+
+    def copy(self):
+        return Rubik(copy=self)
 
     def set_solve_mode(self):
         self.mode = "solve"
@@ -152,7 +174,7 @@ class Rubik:
         string = ""
 
         for value in row:
-            string += color_string[value] + "█"
+            string += color_string[value] + "██"
         string += color_string["reset"]
 
         return string
@@ -164,7 +186,7 @@ class Rubik:
         face_left = self.get_left()
         face_right = self.get_right()
         face_front = self.center_face
-        face_back = next(
+        face_back: Face = next(
             (
                 self.faces[pos]
                 for pos in self.faces
@@ -180,7 +202,7 @@ class Rubik:
         )
 
         for i in range(3):
-            print("   " + self.row_to_string(face_up.grid[i]))
+            print("      " + self.row_to_string(face_up.grid[i]))
         for i in range(3):
             print(
                 self.row_to_string(face_left.grid[i])
@@ -188,9 +210,9 @@ class Rubik:
                 + self.row_to_string(face_right.grid[i])
             )
         for i in range(3):
-            print("   " + self.row_to_string(face_down.grid[i]))
+            print("      " + self.row_to_string(face_down.grid[i]))
         for i in range(3):
-            print("   " + self.row_to_string(face_back.grid[i]))
+            print("      " + self.row_to_string(face_back.grid[i]))
 
         print()
 
@@ -264,7 +286,7 @@ class Rubik:
         face_left = self.get_left()
         face_right = self.get_right()
         face_front = self.center_face
-        face_back = next(
+        face_back: Face = next(
             (
                 self.faces[pos]
                 for pos in self.faces
@@ -329,7 +351,7 @@ class Rubik:
         face_left = self.get_left()
         face_right = self.get_right()
         face_front = self.center_face
-        face_back = next(
+        face_back: Face = next(
             (
                 self.faces[pos]
                 for pos in self.faces
@@ -388,7 +410,7 @@ class Rubik:
         face_left = self.get_left()
         face_right = self.get_right()
         face_front = self.center_face
-        face_back = next(
+        face_back: Face = next(
             (
                 self.faces[pos]
                 for pos in self.faces
@@ -451,7 +473,7 @@ class Rubik:
         face_left = self.get_left()
         face_right = self.get_right()
         face_front = self.center_face
-        face_back = next(
+        face_back: Face = next(
             (
                 self.faces[pos]
                 for pos in self.faces
@@ -516,7 +538,7 @@ class Rubik:
         face_left = self.get_left()
         face_right = self.get_right()
         face_front = self.center_face
-        face_back = next(
+        face_back: Face = next(
             (
                 self.faces[pos]
                 for pos in self.faces
@@ -584,9 +606,8 @@ class Rubik:
             number = 1
             dir = "clockwise"
 
-            if move[0] == "2":
+            if "2" in move:
                 number = 2
-                move = move[1:]
 
             if "'" in move:
                 dir = "counter-clockwise"
@@ -596,10 +617,10 @@ class Rubik:
             if self.mode == "solve":
                 self.move_number += 1
 
-            if not hide:
+            if not hide and not HIDDEN:
                 print(f"MOVE: {initial_move}")
                 self.display_cube()
-            # time.sleep(1)
+            # time.sleep(0.1)
 
     def do_white_cross(self):
 
@@ -664,7 +685,6 @@ class Rubik:
                 or left_face.grid[1][0] == WHITE
                 or left_face.grid[1][2] == WHITE
             ):
-                print("left_face")
                 self.move_cube(moves)
                 continue
 
@@ -717,7 +737,6 @@ class Rubik:
                 or right_face.grid[1][0] == WHITE
                 or right_face.grid[1][2] == WHITE
             ):
-                print("right_face")
                 self.move_cube(moves)
                 continue
 
@@ -770,7 +789,6 @@ class Rubik:
                 or up_face.grid[1][0] == WHITE
                 or up_face.grid[1][2] == WHITE
             ):
-                print("up_face")
                 self.move_cube(moves)
                 continue
 
@@ -823,7 +841,6 @@ class Rubik:
                 or down_face.grid[1][0] == WHITE
                 or down_face.grid[1][2] == WHITE
             ):
-                print("down_face")
                 self.move_cube(moves)
                 continue
 
@@ -881,7 +898,6 @@ class Rubik:
                 or back_face.grid[1][0] == WHITE
                 or back_face.grid[1][2] == WHITE
             ):
-                print("back_face")
                 self.move_cube(moves)
                 continue
 
@@ -922,7 +938,6 @@ class Rubik:
                     [0 for i in range(4) if center_data[i] == cross_data[i]]
                 )
                 moves_counter_clockwise += 1
-            print(moves_counter_clockwise)
 
             if moves_counter_clockwise == 1:
                 self.move_cube("F'")
@@ -962,7 +977,6 @@ class Rubik:
             else:
                 moves_clockwise = 0
                 good_pos = "UP"
-                print('stored_item["value"]', stored_item["value"])
                 if left_face.center_color == stored_item["value"]:
                     moves_clockwise = 3
                     good_pos = "LEFT"
@@ -973,15 +987,12 @@ class Rubik:
                     moves_clockwise = 1
                     good_pos = "RIGHT"
 
-                print(moves_clockwise)
                 if stored_item["pos"] == "DOWN":
                     moves_clockwise += 2
                 elif stored_item["pos"] == "RIGHT":
                     moves_clockwise += 3
                 elif stored_item["pos"] == "LEFT":
                     moves_clockwise += 1
-
-                print(moves_clockwise)
 
                 if moves_clockwise % 4 == 1:
                     self.move_cube("B")
@@ -1056,7 +1067,7 @@ class Rubik:
         face_left = self.get_left()
         face_right = self.get_right()
         face_front = self.center_face
-        face_back = next(
+        face_back: Face = next(
             (
                 self.faces[pos]
                 for pos in self.faces
@@ -1071,89 +1082,107 @@ class Rubik:
             )
         )
 
-        if face_front.grid[0][0] != face_front.center_color:  # TOP LEFT CORNER
-            if face_up.grid[2][0] == face_front.center_color:
-                self.move_cube(["U", "2B", "U'", "L'", "2B", "L"])
-            elif face_left.grid[0][2] == face_front.center_color:
-                self.move_cube(["L'", "2B", "L", "U", "2B", "U'"])
+        if (
+            face_front.grid[0][0] != face_front.center_color
+            or face_up.grid[2][0] != face_up.center_color
+            or face_left.grid[0][2] != face_left.center_color
+            ):  # TOP LEFT CORNER
+            if face_front.grid[0][0] in [face_front.center_color, face_up.center_color, face_left.center_color] and face_up.grid[2][0] in [face_front.center_color, face_up.center_color, face_left.center_color] and face_left.grid[0][2] in [face_front.center_color, face_up.center_color, face_left.center_color]: # CHECK IF CORNER TOP RIGHT IS THE GOOD CORNER TO BE IN THE TO LEFT CORNER
+                self.move_cube(["L'", "B'", "L"])
+            elif face_front.grid[0][2] in [face_front.center_color, face_up.center_color, face_left.center_color] and face_up.grid[2][2] in [face_front.center_color, face_up.center_color, face_left.center_color] and face_right.grid[0][0] in [face_front.center_color, face_up.center_color, face_left.center_color]: # CHECK IF CORNER TOP RIGHT IS THE GOOD CORNER TO BE IN THE TO LEFT CORNER
+                self.move_cube(["R", "B'", "R'"])
+            elif face_front.grid[2][2] in [face_front.center_color, face_up.center_color, face_left.center_color] and face_down.grid[0][2] in [face_front.center_color, face_up.center_color, face_left.center_color] and face_right.grid[2][0] in [face_front.center_color, face_up.center_color, face_left.center_color]: # CHECK IF CORNER BOTTOM RIGHT IS THE GOOD CORNER TO BE IN THE TO LEFT CORNER
+                self.move_cube(["R'", "2B", "R"])
+            elif face_front.grid[2][0] in [face_front.center_color, face_up.center_color, face_left.center_color] and face_down.grid[0][0] in [face_front.center_color, face_up.center_color, face_left.center_color] and face_left.grid[2][2] in [face_front.center_color, face_up.center_color, face_left.center_color]: # CHECK IF CORNER BOTTOM LEFT IS THE GOOD CORNER TO BE IN THE TO LEFT CORNER
+                self.move_cube(["D'", "B", "D"])
             else:
                 while (
-                    face_back.grid[2][0] != face_front.center_color
-                    and face_left.grid[0][0] != face_front.center_color
-                    and face_up.grid[0][0] != face_front.center_color
-                ):
+                        face_up.grid[0][0] not in [face_front.center_color, face_up.center_color, face_left.center_color]
+                        or face_back.grid[2][0] not in [face_front.center_color, face_up.center_color, face_left.center_color]
+                        or face_left.grid[0][0] not in [face_front.center_color, face_up.center_color, face_left.center_color]
+                    ): # CHECK IF THE BACK TOP LEFT CORNER IS THE GOOD CORNER
                     self.move_cube("B")
-                if face_left.grid[0][0] == face_front.center_color:
-                    self.move_cube(["L'", "B", "L"])
-                elif face_up.grid[0][0] == face_front.center_color:
-                    self.move_cube(["U", "B'", "U'"])
-                else:
-                    self.move_cube(["L'", "2B", "L", "B'", "L'", "B", "L"])
 
-        if face_front.grid[0][2] != face_front.center_color:  # TOP RIGHT CORNER
-            if face_up.grid[2][2] == face_front.center_color:
-                self.move_cube(["U'", "2B", "U", "R", "2B", "R'"])
-            elif face_right.grid[0][0] == face_front.center_color:
-                self.move_cube(["R", "2B", "R'", "U'", "2B", "U"])
+            self.move_cube(["L'", "B", "L"])
+
+            while face_front.grid[0][0] != face_front.center_color:
+                self.move_cube(["L'", "B'", "L", "B", "L'", "B'", "L"])
+        
+        if (
+            face_front.grid[0][2] != face_front.center_color
+            or face_up.grid[2][2] != face_up.center_color
+            or face_right.grid[0][0] != face_right.center_color
+            ):  # TOP LEFT CORNER
+            if face_front.grid[0][2] in [face_front.center_color, face_up.center_color, face_right.center_color] and face_up.grid[2][2] in [face_front.center_color, face_up.center_color, face_right.center_color] and face_right.grid[0][0] in [face_front.center_color, face_up.center_color, face_right.center_color]: # CHECK IF CORNER TOP RIGHT IS THE GOOD CORNER TO BE IN THE TO LEFT CORNER
+                self.move_cube(["R", "B", "R'"])
+            elif face_front.grid[2][2] in [face_front.center_color, face_up.center_color, face_right.center_color] and face_down.grid[0][2] in [face_front.center_color, face_up.center_color, face_right.center_color] and face_right.grid[2][0] in [face_front.center_color, face_up.center_color, face_right.center_color]: # CHECK IF CORNER BOTTOM RIGHT IS THE GOOD CORNER TO BE IN THE TO LEFT CORNER
+                self.move_cube(["D", "B'", "D'"])
+            elif face_front.grid[2][0] in [face_front.center_color, face_up.center_color, face_right.center_color] and face_down.grid[0][0] in [face_front.center_color, face_up.center_color, face_right.center_color] and face_left.grid[2][2] in [face_front.center_color, face_up.center_color, face_right.center_color]: # CHECK IF CORNER BOTTOM LEFT IS THE GOOD CORNER TO BE IN THE TO LEFT CORNER
+                self.move_cube(["L", "2B", "L'"])
             else:
                 while (
-                    face_back.grid[2][2] != face_front.center_color
-                    and face_right.grid[0][2] != face_front.center_color
-                    and face_up.grid[0][2] != face_front.center_color
-                ):
+                        face_up.grid[0][2] not in [face_front.center_color, face_up.center_color, face_right.center_color]
+                        or face_back.grid[2][2] not in [face_front.center_color, face_up.center_color, face_right.center_color]
+                        or face_right.grid[0][2] not in [face_front.center_color, face_up.center_color, face_right.center_color]
+                    ): # CHECK IF THE BACK TOP LEFT CORNER IS THE GOOD CORNER
                     self.move_cube("B")
-                if face_right.grid[0][2] == face_front.center_color:
-                    self.move_cube(["R", "B'", "R'"])
-                elif face_up.grid[0][2] == face_front.center_color:
-                    self.move_cube(["U'", "B", "U"])
-                else:
-                    self.move_cube(["R", "2B", "R'", "B", "R", "B'", "R'"])
 
-        if face_front.grid[2][0] != face_front.center_color:  # BOTTOM LEFT CORNER
-            if face_down.grid[0][0] == face_front.center_color:
-                self.move_cube(["D'", "2B", "D", "L", "2B", "L'"])
-            elif face_left.grid[2][2] == face_front.center_color:
-                self.move_cube(["L", "2B", "L'", "D'", "2B", "D"])
+            self.move_cube(["R", "B'", "R'"])
+
+            while face_front.grid[0][2] != face_front.center_color:
+                self.move_cube(["R", "B", "R'", "B'", "R", "B", "R'"])
+        
+        
+        if (
+            face_front.grid[2][2] != face_front.center_color
+            or face_down.grid[0][2] != face_down.center_color
+            or face_right.grid[2][0] != face_right.center_color
+            ):  # TOP LEFT CORNER
+            if face_front.grid[2][2] in [face_front.center_color, face_down.center_color, face_right.center_color] and face_down.grid[0][2] in [face_front.center_color, face_down.center_color, face_right.center_color] and face_right.grid[2][0] in [face_front.center_color, face_down.center_color, face_right.center_color]: # CHECK IF CORNER BOTTOM RIGHT IS THE GOOD CORNER TO BE IN THE TO LEFT CORNER
+                self.move_cube(["R'", "B'", "R"])
+            elif face_front.grid[2][0] in [face_front.center_color, face_down.center_color, face_right.center_color] and face_down.grid[0][0] in [face_front.center_color, face_down.center_color, face_right.center_color] and face_left.grid[2][2] in [face_front.center_color, face_down.center_color, face_right.center_color]: # CHECK IF CORNER BOTTOM LEFT IS THE GOOD CORNER TO BE IN THE TO LEFT CORNER
+                self.move_cube(["L", "B'", "L'"])
             else:
                 while (
-                    face_back.grid[0][0] != face_front.center_color
-                    and face_left.grid[2][0] != face_front.center_color
-                    and face_down.grid[2][0] != face_front.center_color
-                ):
+                        face_down.grid[2][2] not in [face_front.center_color, face_down.center_color, face_right.center_color]
+                        or face_back.grid[0][2] not in [face_front.center_color, face_down.center_color, face_right.center_color]
+                        or face_right.grid[2][2] not in [face_front.center_color, face_down.center_color, face_right.center_color]
+                    ): # CHECK IF THE BACK TOP LEFT CORNER IS THE GOOD CORNER
                     self.move_cube("B")
-                if face_left.grid[2][0] == face_front.center_color:
-                    self.move_cube(["L", "B'", "L'"])
-                elif face_down.grid[2][0] == face_front.center_color:
-                    self.move_cube(["D'", "B", "D"])
-                else:
-                    self.move_cube(["L", "2B", "L'", "B", "L", "B'", "L'"])
 
-        if face_front.grid[2][2] != face_front.center_color:  # BOTTOM RIGHT CORNER
-            if face_down.grid[0][2] == face_front.center_color:
-                self.move_cube(["D", "2B", "D'", "R'", "2B", "R"])
-            elif face_right.grid[2][0] == face_front.center_color:
-                self.move_cube(["R'", "2B", "R", "D", "2B", "D'"])
+            self.move_cube(["R'", "B", "R"])
+
+            while face_front.grid[2][2] != face_front.center_color:
+                self.move_cube(["R'", "B'", "R", "B", "R'", "B'", "R"])
+        
+        if (
+            face_front.grid[2][0] != face_front.center_color
+            or face_down.grid[0][0] != face_down.center_color
+            or face_left.grid[2][2] != face_left.center_color
+            ):  # TOP LEFT CORNER
+            if face_front.grid[2][0] in [face_front.center_color, face_down.center_color, face_left.center_color] and face_down.grid[0][0] in [face_front.center_color, face_down.center_color, face_left.center_color] and face_left.grid[2][2] in [face_front.center_color, face_down.center_color, face_left.center_color]: # CHECK IF CORNER BOTTOM LEFT IS THE GOOD CORNER TO BE IN THE TO LEFT CORNER
+                self.move_cube(["L", "B", "L'"])
             else:
                 while (
-                    face_back.grid[0][2] != face_front.center_color
-                    and face_right.grid[2][2] != face_front.center_color
-                    and face_down.grid[2][2] != face_front.center_color
-                ):
+                        face_down.grid[2][0] not in [face_front.center_color, face_down.center_color, face_left.center_color]
+                        or face_back.grid[0][0] not in [face_front.center_color, face_down.center_color, face_left.center_color]
+                        or face_left.grid[2][0] not in [face_front.center_color, face_down.center_color, face_left.center_color]
+                    ): # CHECK IF THE BACK TOP LEFT CORNER IS THE GOOD CORNER
                     self.move_cube("B")
-                if face_right.grid[2][2] == face_front.center_color:
-                    self.move_cube(["R'", "B", "R"])
-                elif face_down.grid[2][2] == face_front.center_color:
-                    self.move_cube(["D", "B'", "D'"])
-                else:
-                    self.move_cube(["R'", "2B", "R", "B'", "R'", "B", "R"])
 
+            self.move_cube(["L", "B'", "L'"])
+
+            while face_front.grid[2][0] != face_front.center_color:
+                self.move_cube(["L", "B", "L'", "B'", "L", "B", "L'"])
+        
+        
     def check_white_first_crown(self) -> bool:
         face_up = self.get_up()
         face_down = self.get_down()
         face_left = self.get_left()
         face_right = self.get_right()
         face_front = self.center_face
-        face_back = next(
+        face_back: Face = next(
             (
                 self.faces[pos]
                 for pos in self.faces
@@ -1203,14 +1232,14 @@ class Rubik:
         # face_front[2][2]  # FRONT FACE | DOWN RIGHT
 
         return True
-
-    def do_white_first_crown(self):
+    
+    def check_second_crown(self):
         face_up = self.get_up()
         face_down = self.get_down()
         face_left = self.get_left()
         face_right = self.get_right()
         face_front = self.center_face
-        face_back = next(
+        face_back: Face = next(
             (
                 self.faces[pos]
                 for pos in self.faces
@@ -1225,8 +1254,319 @@ class Rubik:
             )
         )
 
-        while not self.check_white_first_crown():
-            pass
+        if not face_up.grid[1][0] != face_up.center_color or face_up.grid[1][2] != face_up.center_color:
+            return False
+        if not face_left.grid[0][1] != face_left.center_color or face_left.grid[2][1] != face_left.center_color:
+            return False
+        if not face_right.grid[0][1] != face_right.center_color or face_right.grid[2][1] != face_right.center_color:
+            return False
+        if not face_down.grid[1][0] != face_down.center_color or face_down.grid[1][2] != face_down.center_color:
+            return False
+        
+
+        return True
+
+    def do_second_crown(self):
+
+        face_up = self.get_up()
+        face_down = self.get_down()
+        face_left = self.get_left()
+        face_right = self.get_right()
+        face_front = self.center_face
+        face_back: Face = next(
+            (
+                self.faces[pos]
+                for pos in self.faces
+                if self.faces[pos]
+                not in [
+                    face_up,
+                    face_down,
+                    face_left,
+                    face_right,
+                    face_front,
+                ]
+            )
+        )
+
+
+    # while ()
+
+
+        # while not self.check_second_crown():
+
+
+            # if face_up.grid[0][1] not in [face_up.center_color, face_back.center_color] or face_left.grid[0][1] not in [face_left.center_color, face_back.center_color]:
+
+            #     if face_up.grid[0][1] in [face_up.center_color, face_left.center_color] and face_back.grid[2][1] in [face_up.center_color, face_left.center_color]:
+            #         if face_up.grid[0][1] == face_up.center_color:
+            #             self.move_cube(["B", "L'", "U", "L", "U", "F", "U'", "F'"])
+            #         else:
+            #             self.move_cube(["2B", "U", "B", "U'", "B", "L'", "B'", "L"])
+            #     if face_up.grid[0][1] in [face_up.center_color, face_left.center_color] and face_back.grid[2][1] in [face_up.center_color, face_left.center_color]:
+            #         if face_up.grid[0][1] == face_up.center_color:
+            #             self.move_cube(["B", "L'", "U", "L", "U", "F", "U'", "F'"])
+            #         else:
+            #             self.move_cube(["2B", "U", "B", "U'", "B", "L'", "B'", "L"])
+
+                        
+
+
+
+
+
+                # pass
+
+        pass
+    # def do_first_crown(self):
+    #     face_up = self.get_up()
+    #     face_down = self.get_down()
+    #     face_left = self.get_left()
+    #     face_right = self.get_right()
+    #     face_front = self.center_face
+    #     face_back: Face = next(
+    #         (
+    #             self.faces[pos]
+    #             for pos in self.faces
+    #             if self.faces[pos]
+    #             not in [
+    #                 face_up,
+    #                 face_down,
+    #                 face_left,
+    #                 face_right,
+    #                 face_front,
+    #             ]
+    #         )
+    #     )
+
+    #     store_item = [None, None, None]
+    #     store_item_pos = None
+    #     store_item_pos_to_go = None
+    #     # while not self.check_white_first_crown():
+
+    #     # if store_item[0] != None:
+
+    #     if face_up.grid[2][0] != face_up.center_color or face_left.grid[0][2] != face_left.center_color:
+
+    #         store_item = [face_up.grid[2][0], face_front.grid[0][0], face_left.grid[0][2]]
+    #         self.move_cube(['U', "B'", "U'"])
+    #     pass
+
+    def brute_force(self):
+        
+        length = 0
+        while True:
+            length+=1
+            def backtrack(current_combination, current_length):
+                if current_length == length:
+                    rubik = Rubik(self)
+                    rubik.move_cube(current_combination)
+                    if (rubik.is_solved()):
+                        print(current_combination)
+                    
+                    return
+                for item in ALL_MOVES:
+                    current_combination.append(item)
+                    backtrack(current_combination, current_length + 1)
+                    current_combination.pop()
+            
+            backtrack([], 0)
+
+        
+    
+    
+
+    def bfs_solve(self, all_moves, target_group_check):
+        visited = []
+        queue = [(self.copy(), [])]
+
+        index = 0
+        
+        while len(queue):
+            index+=1
+            # if index == 50:
+                # return None
+            print(index)
+            # print(len(queue))
+            # print(len(visited))
+            current_cube, moves = queue.pop(0)
+            
+            if target_group_check(current_cube):
+                return moves
+            
+            # print(moves)
+            for move in all_moves:
+                new_cube = current_cube.copy()
+                # print(move)
+                new_cube.move_cube(move)
+                if new_cube not in visited:
+                    visited.append(new_cube)
+                    queue.append((new_cube, moves + [move]))
+            # time.sleep(1)
+    
+    def is_in_g1(cube):
+
+        face_up = cube.get_up()
+        face_down = cube.get_down()
+        face_left = cube.get_left()
+        face_right = cube.get_right()
+        face_front = cube.center_face
+        face_back: Face = next(
+            (
+                cube.faces[pos]
+                for pos in cube.faces
+                if cube.faces[pos]
+                not in [
+                    face_up,
+                    face_down,
+                    face_left,
+                    face_right,
+                    face_front,
+                ]
+            )
+        )
+
+
+        if face_front.grid[0][1] != face_front.center_color and face_up.grid[2][1] != face_up.center_color:
+            return False
+        if face_front.grid[1][0] != face_front.center_color and face_left.grid[1][2] != face_left.center_color:
+            return False
+        if face_front.grid[2][1] != face_front.center_color and face_down.grid[0][1] != face_down.center_color:
+            return False
+        if face_front.grid[1][2] != face_front.center_color and face_right.grid[1][0] != face_right.center_color:
+            return False
+
+        if face_back.grid[0][1] != face_back.center_color and face_down.grid[2][1] != face_down.center_color:
+            return False
+        if face_back.grid[1][0] != face_back.center_color and face_left.grid[1][0] != face_left.center_color:
+            return False
+        if face_back.grid[2][1] != face_back.center_color and face_up.grid[0][1] != face_up.center_color:
+            return False
+        if face_back.grid[1][2] != face_back.center_color and face_right.grid[2][1] != face_right.center_color:
+            return False
+
+
+        return True
+
+    def thistlethwaite_solver(self):
+
+
+
+
+        def is_in_g1(cube):
+
+            face_up = cube.get_up()
+            face_down = cube.get_down()
+            face_left = cube.get_left()
+            face_right = cube.get_right()
+            face_front = cube.center_face
+            face_back: Face = next(
+                (
+                    cube.faces[pos]
+                    for pos in cube.faces
+                    if cube.faces[pos]
+                    not in [
+                        face_up,
+                        face_down,
+                        face_left,
+                        face_right,
+                        face_front,
+                    ]
+                )
+            )
+
+
+            cube.display_cube()
+            if face_front.grid[0][1] != face_front.center_color and face_up.grid[2][1] != face_up.center_color:
+                return False
+            if face_front.grid[1][0] != face_front.center_color and face_left.grid[1][2] != face_left.center_color:
+                return False
+            if face_front.grid[2][1] != face_front.center_color and face_down.grid[0][1] != face_down.center_color:
+                return False
+            if face_front.grid[1][2] != face_front.center_color and face_right.grid[1][0] != face_right.center_color:
+                return False
+
+            if face_back.grid[0][1] != face_back.center_color and face_down.grid[2][1] != face_down.center_color:
+                return False
+            if face_back.grid[1][0] != face_back.center_color and face_left.grid[1][0] != face_left.center_color:
+                return False
+            if face_back.grid[2][1] != face_back.center_color and face_up.grid[0][1] != face_up.center_color:
+                return False
+            if face_back.grid[1][2] != face_back.center_color and face_right.grid[1][2] != face_right.center_color:
+                return False
+            
+            if face_left.grid[0][1] != face_left.center_color and face_up.grid[1][0] != face_up.center_color:
+                return False
+            if face_left.grid[2][1] != face_left.center_color and face_down.grid[1][0] != face_down.center_color:
+                return False
+            
+            if face_right.grid[0][1] != face_right.center_color and face_up.grid[1][2] != face_up.center_color:
+                return False
+            if face_right.grid[2][1] != face_right.center_color and face_down.grid[1][2] != face_down.center_color:
+                return False
+
+
+            return True
+        
+        def is_in_g2(cube):
+            face_up = cube.get_up()
+            face_down = cube.get_down()
+            face_left = cube.get_left()
+            face_right = cube.get_right()
+            face_front = cube.center_face
+            face_back: Face = next(
+                (
+                    cube.faces[pos]
+                    for pos in cube.faces
+                    if cube.faces[pos]
+                    not in [
+                        face_up,
+                        face_down,
+                        face_left,
+                        face_right,
+                        face_front,
+                    ]
+                )
+            )
+
+            for face in [
+                face_up, face_down, face_left, face_right, face_front, face_back
+            ]:
+                if face.grid[0][0] != face.center_color:
+                    return False
+                if face.grid[0][2] != face.center_color:
+                    return False
+                if face.grid[2][0] != face.center_color:
+                    return False
+                if face.grid[2][2] != face.center_color:
+                    return False
+
+            return True
+
+        def is_in_g3(cube):
+            return is_in_g1(cube) and is_in_g2(cube)
+
+
+
+
+        M1 = ["F2", "B2", "L", "R", "U", "D"]
+
+        self.bfs_solve(M1, is_in_g1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # while not all(
